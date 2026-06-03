@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#fcf3e6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Elias Meds">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Elias · Meds</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#fcf3e6; --bg2:#f6e7e9; --card:#fff; --ink:#43382f; --muted:#9a8c7d;
+    --line:#efe2d2; --shadow:0 8px 24px rgba(120,90,60,.10), 0 2px 6px rgba(120,90,60,.06);
+    --oxy:#7f8cf0; --oxy-soft:#eef0ff;
+    --tyl:#3fb6a8; --tyl-soft:#e6f7f4;
+    --mot:#f08a5d; --mot-soft:#fdeee6;
+    --ok:#5fae6e; --soon:#e0a124; --due:#e0604f; --due-soft:#fdebe7;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:'Nunito',system-ui,-apple-system,sans-serif;color:var(--ink);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed;min-height:100vh;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(env(safe-area-inset-bottom) + 24px) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:480px;margin:0 auto;padding:18px 16px 40px}
+  header{display:flex;align-items:center;gap:12px;margin:6px 2px 14px}
+  .badge{width:46px;height:46px;border-radius:15px;flex:0 0 auto;background:linear-gradient(135deg,#8b9eff,#ff9eb5);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Baloo 2',sans-serif;font-weight:800;
+    font-size:26px;box-shadow:0 6px 14px rgba(150,120,200,.35)}
+  .title h1{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:24px;margin:0;line-height:1}
+  .title p{margin:3px 0 0;color:var(--muted);font-size:13px;font-weight:600}
+  .sync{margin-left:auto;font-size:11px;font-weight:800;color:var(--muted);display:flex;align-items:center;gap:5px}
+  .sync .d{width:8px;height:8px;border-radius:50%;background:#cdbfae}
+  .sync.live .d{background:var(--ok)}
+
+  .banner{background:var(--card);border-radius:18px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);
+    border:1px solid var(--line);overflow:hidden}
+  .banner .lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .banner .big{font-family:'Baloo 2',sans-serif;font-size:21px;font-weight:700;margin-top:3px;line-height:1.15}
+  .banner .sub{font-size:13.5px;color:var(--muted);font-weight:600;margin-top:2px}
+  .banner.alert{background:var(--due-soft);border-color:#f3c7bf}
+  .banner.alert .big{color:var(--due)}
+
+  .hint{background:#fff7e9;border:1px solid #f2dfb0;border-radius:14px;padding:12px 14px;margin-bottom:12px;
+    font-size:13px;font-weight:600;color:#90702a;line-height:1.5;display:none}
+  .hint.show{display:block}
+
+  .remind{display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:13px;font-weight:600;color:var(--muted)}
+  .remind button{font:inherit;font-weight:700;border:none;border-radius:999px;padding:9px 16px;background:#fff;
+    color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow);cursor:pointer}
+  .remind button.on{background:var(--ok);color:#fff;border-color:transparent}
+  .remind .dot{width:9px;height:9px;border-radius:50%;background:#cdbfae;flex:0 0 auto}
+  .remind .dot.live{background:var(--ok)}
+
+  .card{background:var(--card);border-radius:20px;padding:16px 16px 14px;margin-bottom:14px;box-shadow:var(--shadow);
+    border:1px solid var(--line);border-left:6px solid var(--accent)}
+  .card.due{border-color:#f3c7bf;border-left-color:var(--due);background:linear-gradient(180deg,#fff,var(--due-soft))}
+  .crow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:19px;display:flex;align-items:center;gap:8px}
+  .pill{width:13px;height:13px;border-radius:50%;background:var(--accent);flex:0 0 auto}
+  .status{text-align:right;flex:0 0 auto}
+  .status .state{font-weight:800;font-size:15px}
+  .status .cd{font-size:12.5px;color:var(--muted);font-weight:700;margin-top:1px}
+  .state.ok{color:var(--ok)} .state.soon{color:var(--soon)} .state.due{color:var(--due)} .state.idle{color:var(--muted)}
+  .meta{display:flex;gap:18px;margin:12px 2px 14px;font-size:13px;color:var(--muted);font-weight:600;flex-wrap:wrap}
+  .meta b{color:var(--ink);font-weight:800}
+
+  .controls{display:flex;align-items:flex-end;gap:10px}
+  .field{flex:1 1 auto}
+  .field label{display:block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .field input{width:100%;font:inherit;font-weight:700;font-size:16px;color:var(--ink);background:var(--accent-soft);
+    border:1.5px solid transparent;border-radius:12px;padding:11px 12px}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .field.small{flex:0 0 84px}
+  .field.small input{text-align:center}
+
+  .take{flex:0 0 auto;width:100%;margin-top:12px;font:inherit;font-family:'Baloo 2',sans-serif;font-weight:700;
+    font-size:18px;color:#fff;background:var(--accent);border:none;border-radius:14px;padding:14px;cursor:pointer;
+    box-shadow:0 6px 14px color-mix(in srgb,var(--accent) 40%,transparent);transition:transform .08s ease}
+  .take:active{transform:scale(.97)}
+  .take .chk{margin-right:6px}
+  .twobtn{display:flex;gap:10px;margin-top:12px}
+  .twobtn .take{margin-top:0;font-size:16px;padding:13px 8px}
+  .twobtn .take small{display:block;font-weight:600;font-size:11px;opacity:.9;margin-top:2px}
+
+  .foot-row{display:flex;align-items:center;justify-content:space-between;margin-top:11px;min-height:18px}
+  .recent{font-size:12px;color:var(--muted);font-weight:600}
+  .undo{font:inherit;font-size:12.5px;font-weight:800;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px 2px;visibility:hidden}
+  .undo.show{visibility:visible}
+
+  details.tools{margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  details.tools summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:800;font-size:14px;color:var(--muted)}
+  details.tools summary::-webkit-details-marker{display:none}
+  details.tools .inner{padding:0 16px 16px;font-size:13px;color:var(--muted);font-weight:600;line-height:1.55}
+  details.tools button{font:inherit;font-weight:800;border:none;border-radius:10px;padding:10px 14px;margin-top:10px;background:var(--due-soft);color:var(--due);cursor:pointer}
+  .note{font-size:12px;color:var(--muted);font-weight:600;line-height:1.55;text-align:center;margin:20px 8px 0}
+  .note b{color:#84745f}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="badge">E</div>
+    <div class="title"><h1>Elias's Meds</h1><p id="today">—</p></div>
+    <div class="sync" id="sync"><span class="d"></span><span id="syncTxt">Connecting…</span></div>
+  </header>
+
+  <div class="banner" id="banner">
+    <div class="lbl">Next up</div>
+    <div class="big" id="bannerBig">Loading…</div>
+    <div class="sub" id="bannerSub"></div>
+  </div>
+
+  <div class="hint" id="iosHint">📲 On iPhone: tap <b>Share → Add to Home Screen</b>, then open Elias's Meds from that icon to turn on reminders.</div>
+
+  <div class="remind">
+    <span class="dot" id="remindDot"></span>
+    <span id="remindTxt" style="flex:1">Reminders off</span>
+    <button id="remindBtn">🔔 Turn on reminders</button>
+  </div>
+
+  <div id="cards"></div>
+
+  <details class="tools">
+    <summary>Options</summary>
+    <div class="inner">
+      Doses and timing are shared live between everyone using this link.<br>
+      “Start a new day” clears the log and timers but keeps your dose settings.
+      <button id="resetBtn">Start a new day</button>
+    </div>
+  </details>
+
+  <p class="note">
+    This tracker just records the amounts and timing <b>you</b> enter — it isn’t medical advice.
+    Always follow Elias’s care team’s instructions, and call them with any questions. 💛
+  </p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-messaging.js";
+
+/* ============================================================
+   1) PASTE YOUR FIREBASE CONFIG HERE  (Console → Project settings)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCAeipdmiBqGy-Sk0VDXWmh3ycfdW5v-CA",
+  authDomain: "elias-meds.firebaseapp.com",
+  projectId: "elias-meds",
+  storageBucket: "elias-meds.firebasestorage.app",
+  messagingSenderId: "716456576963",
+  appId: "1:716456576963:web:af23a183394c1c7ccd9f76"
+};
+/* 2) PASTE YOUR WEB PUSH "VAPID" KEY HERE
+   (Console → Project settings → Cloud Messaging → Web Push certificates) */
+const VAPID_KEY = "BPVtpTw1rQIKCC5HaCVmrbdonPc_7yTO28fosNbZrGloDvxUvoRPuud61f6iExKwCzpzracOz9eocrLsqbqUmf0";
+/* ============================================================ */
+
+const HOUR = 3600*1000;
+const DOC_PATH = "home/elias";
+const MEDS = [
+  { id:'oxy', name:'OxyContin', accent:'var(--oxy)', soft:'var(--oxy-soft)' },
+  { id:'tyl', name:'Tylenol',  accent:'var(--tyl)', soft:'var(--tyl-soft)' },
+  { id:'mot', name:'Motrin',   accent:'var(--mot)', soft:'var(--mot-soft)' }
+];
+const DEFAULTS = {
+  oxy:{ dose:'0.15 mg', hours:2, last:null, nextDue:null, log:[], notified:false },
+  tyl:{ dose:'3 mL',    hours:6, last:null, nextDue:null, log:[], notified:false },
+  mot:{ dose:'3 mL',    hours:6, last:null, nextDue:null, log:[], notified:false }
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const ref = doc(db, DOC_PATH);
+let state = JSON.parse(JSON.stringify(DEFAULTS));
+let ready = false;
+
+/* ---- Auth + live sync ---- */
+signInAnonymously(auth).catch(e=>console.error("auth",e));
+onAuthStateChanged(auth, async (user)=>{
+  if(!user) return;
+  const snap = await getDoc(ref).catch(()=>null);
+  if(!snap || !snap.exists()){ await setDoc(ref, DEFAULTS).catch(e=>console.error("init",e)); }
+  onSnapshot(ref, (s)=>{
+    if(s.exists()){
+      const data = s.data();
+      MEDS.forEach(m=>{ if(data[m.id]) state[m.id] = Object.assign({}, DEFAULTS[m.id], data[m.id]); });
+    }
+    ready = true;
+    setSync(true);
+    render(true);
+  }, (err)=>{ console.error("snapshot",err); setSync(false); });
+  setupMessaging(user.uid);
+});
+function setSync(ok){
+  const el=document.getElementById('sync');
+  el.classList.toggle('live',ok);
+  document.getElementById('syncTxt').textContent = ok ? 'Synced' : 'Offline';
+}
+
+/* ---- Write helpers ---- */
+async function writeMed(id){
+  const upd = {}; upd[id] = state[id];
+  try{ await updateDoc(ref, upd); }
+  catch(e){ try{ await setDoc(ref, {[id]:state[id]}, {merge:true}); }catch(e2){ console.error("write",e2); } }
+}
+function logDose(id, dose, hours){
+  const now = Date.now();
+  const s = state[id];
+  s.dose = dose; s.hours = hours; s.last = now; s.nextDue = now + hours*HOUR;
+  s.notified = false;
+  s.log = (s.log||[]).concat([{t:now, dose:dose}]).slice(-20);
+  render(true); beep(); writeMed(id);
+}
+function undoDose(id){
+  const s = state[id];
+  if(!s.log || !s.log.length) return;
+  s.log = s.log.slice(0,-1);
+  const prev = s.log.length ? s.log[s.log.length-1] : null;
+  s.last = prev ? prev.t : null;
+  s.nextDue = prev ? prev.t + s.hours*HOUR : null;
+  s.notified = false;
+  render(true); writeMed(id);
+}
+
+/* ---- Build cards ---- */
+const cardsEl = document.getElementById('cards');
+MEDS.forEach(m=>{
+  const card = document.createElement('div');
+  card.className='card'; card.id='card-'+m.id;
+  card.style.setProperty('--accent', m.accent);
+  card.style.setProperty('--accent-soft', m.soft);
+
+  let controls;
+  if(m.id==='oxy'){
+    controls =
+      '<div class="meta"><span>Last given: <b id="last-'+m.id+'">—</b></span><span>Next due: <b id="next-'+m.id+'">—</b></span></div>'+
+      '<div class="twobtn">'+
+        '<button class="take" id="oxy-low"><span class="chk">✓</span>0.15 mg<small>then in 2 hrs</small></button>'+
+        '<button class="take" id="oxy-high"><span class="chk">✓</span>0.3 mg<small>then in 4 hrs</small></button>'+
+      '</div>';
+  } else {
+    controls =
+      '<div class="meta"><span>Last given: <b id="last-'+m.id+'">—</b></span><span>Next due: <b id="next-'+m.id+'">—</b></span></div>'+
+      '<div class="controls">'+
+        '<div class="field"><label>Dose</label><input type="text" id="dose-'+m.id+'"></div>'+
+        '<div class="field small"><label>Every (hrs)</label><input type="number" inputmode="decimal" min="0" step="0.5" id="hrs-'+m.id+'"></div>'+
+      '</div>'+
+      '<button class="take" id="take-'+m.id+'"><span class="chk">✓</span>Log dose</button>';
+  }
+  card.innerHTML =
+    '<div class="crow"><div class="name"><span class="pill"></span>'+m.name+'</div>'+
+    '<div class="status"><div class="state idle" id="st-'+m.id+'">Ready</div><div class="cd" id="cd-'+m.id+'"></div></div></div>'+
+    controls+
+    '<div class="foot-row"><span class="recent" id="rec-'+m.id+'"></span><button class="undo" id="undo-'+m.id+'">Undo last</button></div>';
+  cardsEl.appendChild(card);
+
+  if(m.id==='oxy'){
+    document.getElementById('oxy-low').onclick = ()=>logDose('oxy','0.15 mg',2);
+    document.getElementById('oxy-high').onclick = ()=>logDose('oxy','0.3 mg',4);
+  } else {
+    const doseI=document.getElementById('dose-'+m.id), hrsI=document.getElementById('hrs-'+m.id);
+    doseI.onchange = ()=>{ state[m.id].dose=doseI.value; writeMed(m.id); };
+    hrsI.onchange = ()=>{ const v=parseFloat(hrsI.value); if(!isNaN(v)&&v>0){ state[m.id].hours=v; if(state[m.id].last) state[m.id].nextDue=state[m.id].last+v*HOUR; writeMed(m.id); render(true);} };
+    document.getElementById('take-'+m.id).onclick = ()=>logDose(m.id, doseI.value, state[m.id].hours);
+  }
+  document.getElementById('undo-'+m.id).onclick = ()=>undoDose(m.id);
+});
+
+/* ---- Render ---- */
+function fmtTime(ms){ const d=new Date(ms); let h=d.getHours(),mm=d.getMinutes(),ap=h>=12?'PM':'AM'; h=h%12||12; return h+':' +(mm<10?'0':'')+mm+' '+ap; }
+function cdText(diff){ if(diff<=0) return 'now'; const m=Math.round(diff/60000); if(m<60) return 'in '+m+'m'; const h=Math.floor(m/60),r=m%60; return 'in '+h+'h'+(r?(' '+r+'m'):''); }
+
+function render(syncInputs){
+  if(!ready) return;
+  const now=Date.now(); let soonest=null, anyDue=false;
+  MEDS.forEach(m=>{
+    const s=state[m.id];
+    if(syncInputs && m.id!=='oxy'){
+      const di=document.getElementById('dose-'+m.id), hi=document.getElementById('hrs-'+m.id);
+      if(di && document.activeElement!==di) di.value=s.dose;
+      if(hi && document.activeElement!==hi) hi.value=s.hours;
+    }
+    const stEl=document.getElementById('st-'+m.id), cdEl=document.getElementById('cd-'+m.id), card=document.getElementById('card-'+m.id);
+    document.getElementById('last-'+m.id).textContent = s.last? fmtTime(s.last):'—';
+    document.getElementById('next-'+m.id).textContent = s.nextDue? fmtTime(s.nextDue):'—';
+    card.classList.remove('due');
+    if(!s.nextDue){ stEl.textContent='Ready'; stEl.className='state idle'; cdEl.textContent='when needed'; }
+    else{
+      const diff=s.nextDue-now;
+      if(diff<=0){ stEl.textContent='Ready now'; stEl.className='state due'; cdEl.textContent='available now'; card.classList.add('due'); anyDue=true; }
+      else if(diff<=15*60000){ stEl.textContent='Soon'; stEl.className='state soon'; cdEl.textContent=cdText(diff); }
+      else { stEl.textContent='OK'; stEl.className='state ok'; cdEl.textContent=cdText(diff); }
+      if(soonest===null || s.nextDue<soonest.due) soonest={name:m.name, due:s.nextDue, diff};
+    }
+    const rec=document.getElementById('rec-'+m.id);
+    rec.textContent = (s.log&&s.log.length) ? 'Given: '+s.log.slice(-2).map(x=>fmtTime(x.t)+(x.dose?(' · '+x.dose):'')).reverse().join('  •  ') : '';
+    document.getElementById('undo-'+m.id).classList.toggle('show', !!(s.log&&s.log.length));
+  });
+
+  const banner=document.getElementById('banner'), big=document.getElementById('bannerBig'), sub=document.getElementById('bannerSub');
+  banner.classList.remove('alert');
+  if(anyDue){
+    banner.classList.add('alert');
+    const names=MEDS.filter(m=>state[m.id].nextDue && state[m.id].nextDue-now<=0).map(m=>m.name);
+    big.textContent='⏰ Ready now: '+names.join(' + ');
+    sub.textContent='Clear to give whenever you’re ready.';
+  } else if(soonest){
+    big.textContent=soonest.name+' '+cdText(soonest.diff); sub.textContent='at '+fmtTime(soonest.due);
+  } else { big.textContent='No doses logged yet'; sub.textContent='Tap a medicine button when you give it.'; }
+
+  maybeNotifyLocal(now);
+}
+
+/* ---- Foreground/local notification (works while app is open) ---- */
+function maybeNotifyLocal(now){
+  if(!('Notification' in window) || Notification.permission!=='granted') return;
+  MEDS.forEach(m=>{
+    const s=state[m.id];
+    if(s.nextDue && now>=s.nextDue && !s.notified){
+      s.notified=true; writeMed(m.id);
+      try{ new Notification('Elias — '+m.name+' is ready', {body:(s.dose||'')+' · scheduled '+fmtTime(s.nextDue), tag:'elias-'+m.id, icon:'icon-192.png'}); }catch(e){}
+      beep();
+    }
+  });
+}
+
+/* ---- Push messaging setup ---- */
+let messaging=null;
+const remindBtn=document.getElementById('remindBtn'), remindTxt=document.getElementById('remindTxt'), remindDot=document.getElementById('remindDot');
+const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+
+async function setupMessaging(uid){
+  const supported = await isSupported().catch(()=>false);
+  if(isiOS && !standalone){ document.getElementById('iosHint').classList.add('show'); remindBtn.style.display='none'; remindTxt.textContent='Add to Home Screen to enable reminders'; return; }
+  if(!supported || !('Notification' in window)){ remindBtn.style.display='none'; remindTxt.textContent='Reminders not supported on this browser'; return; }
+  messaging = getMessaging(app);
+  onMessage(messaging, (payload)=>{
+    const n=payload.notification||{};
+    try{ new Notification(n.title||'Elias', {body:n.body||'', icon:'icon-192.png'}); }catch(e){}
+    beep();
+  });
+  refreshRemindUI();
+  if(Notification.permission==='granted') registerToken(uid);
+}
+function refreshRemindUI(){
+  const p=Notification.permission;
+  if(p==='granted'){ remindBtn.classList.add('on'); remindBtn.textContent='🔔 Reminders on'; remindTxt.textContent='You’ll be alerted when a dose comes due'; remindDot.classList.add('live'); }
+  else if(p==='denied'){ remindBtn.textContent='🔔 Blocked'; remindTxt.textContent='Blocked — enable notifications in settings'; }
+  else remindTxt.textContent='Reminders off';
+}
+remindBtn.onclick = async ()=>{
+  if(!messaging) return;
+  const perm = await Notification.requestPermission();
+  refreshRemindUI(); beep();
+  if(perm==='granted'){ const u=auth.currentUser; if(u) registerToken(u.uid); }
+};
+async function registerToken(uid){
+  try{
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if(token){ await setDoc(doc(db,'tokens',token), { uid, created: Date.now() }, {merge:true}); }
+  }catch(e){ console.error('token',e); }
+}
+
+/* ---- Beep ---- */
+let actx=null;
+function beep(){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended')actx.resume();
+  const o=actx.createOscillator(),g=actx.createGain(); o.type='sine'; o.frequency.value=660; o.connect(g); g.connect(actx.destination);
+  g.gain.setValueAtTime(0.0001,actx.currentTime); g.gain.exponentialRampToValueAtTime(0.18,actx.currentTime+0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+0.5); o.start(); o.stop(actx.currentTime+0.5);}catch(e){} }
+
+/* ---- New day ---- */
+document.getElementById('resetBtn').onclick = async ()=>{
+  if(!confirm('Clear today’s log and timers for everyone? Dose settings stay.')) return;
+  MEDS.forEach(m=>{ const s=state[m.id]; s.last=null; s.nextDue=null; s.log=[]; s.notified=false; });
+  render(true);
+  try{ await setDoc(ref, {oxy:state.oxy, tyl:state.tyl, mot:state.mot}, {merge:true}); }catch(e){ console.error(e); }
+};
+
+/* ---- Clock loop ---- */
+function setToday(){ document.getElementById('today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}); }
+setToday(); setInterval(()=>render(false),1000); setInterval(setToday,60000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) render(true); });
+</script>
+</body>
+</html>
